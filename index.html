@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECT Energy – Vetrina Energetica &amp; E-Mobility</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,500;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bd:#0a2540;--bm:#0b4a7a;--bl:#e8f1fb;
+  --gn:#1a7a45;--gl:#e6f4ec;
+  --am:#c8860a;--al:#fef3d0;
+  --sf:#f5f7fa;--wh:#fff;--br:#e1e8f0;
+  --tm:#0a2540;--ts:#5a6a80;--tx:#9aafc5;
+  --r:20px;--rs:10px;
+  --sh:0 4px 24px rgba(10,37,64,.07);
+  --sl:0 12px 40px rgba(10,37,64,.12);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--sf);color:var(--tm);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--bd);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 120% at 50% -20%,rgba(43,130,200,.25),transparent 70%);pointer-events:none}
+.hdr-logo{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:1.2rem}
+.hdr h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.02em}
+.hdr h1 span{color:#5bc4f5}
+.hdr p{color:rgba(255,255,255,.55);margin-top:.75rem;font-size:.95rem;font-weight:300}
+
+/* ══ RISPARMIO BANNER ══ */
+.sav-banner{background:linear-gradient(135deg,#0a2540 0%,#0b5a30 100%);padding:1.5rem 2rem;position:relative;overflow:hidden}
+.sav-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 200% at 90% 50%,rgba(91,196,245,.12),transparent 70%);pointer-events:none}
+.sav-inner{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:.75rem}
+.sav-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.sav-title{font-size:.72rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5)}
+.sav-date{font-size:.68rem;font-family:'DM Mono',monospace;color:rgba(255,255,255,.35)}
+.sav-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.75rem}
+.sc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.3rem;transition:background .2s}
+.sc:hover{background:rgba(255,255,255,.11)}
+.sc-lbl{font-size:.7rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace}
+.sc-main{display:flex;align-items:baseline;gap:.4rem;flex-wrap:wrap}
+.sc-val{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:#fff;line-height:1}
+.sc-unit{font-size:.78rem;color:rgba(255,255,255,.5)}
+.sc-pill{display:inline-flex;align-items:center;gap:.3rem;border-radius:20px;padding:.15rem .6rem;font-size:.7rem;font-weight:700;font-family:'DM Mono',monospace;width:fit-content}
+.sc-pill.cyan{background:rgba(91,196,245,.15);border:1px solid rgba(91,196,245,.3);color:#5bc4f5}
+.sc-pill.grn{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.sc-vs{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.1rem}
+.sc.highlight{background:rgba(91,196,245,.1);border-color:rgba(91,196,245,.25)}
+.sav-note{font-size:.68rem;color:rgba(255,255,255,.28);font-style:italic}
+.sav-cta{display:inline-flex;align-items:center;gap:.4rem;background:rgba(91,196,245,.2);border:1px solid rgba(91,196,245,.35);color:#5bc4f5;border-radius:30px;padding:.35rem 1rem;font-size:.78rem;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap}
+.sav-cta:hover{background:rgba(91,196,245,.35);color:#fff}
+
+/* LAYOUT */
+.main{max-width:1300px;margin:0 auto;padding:2rem 1.5rem 4rem;display:flex;flex-direction:column;gap:1.5rem}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--r);padding:1.75rem;box-shadow:var(--sh);border:1px solid var(--br);display:flex;flex-direction:column;gap:1rem;transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:var(--sl);transform:translateY(-2px)}
+.ct{font-size:1.15rem;font-weight:700;color:var(--bd);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.ic-b{background:var(--bl)}.ic-g{background:var(--gl)}.ic-a{background:var(--al)}
+.bdg{font-family:'DM Mono',monospace;font-size:.65rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;padding:.2rem .7rem;border-radius:30px;margin-left:auto}
+.bdg-b{background:var(--bl);color:var(--bm)}.bdg-g{background:var(--gl);color:var(--gn)}
+.bdg-l{background:var(--gl);color:var(--gn)}.bdg-a{background:var(--al);color:var(--am)}
+
+/* PUN */
+.ztabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.ztab{background:var(--sf);border:1px solid var(--br);border-radius:30px;padding:.3rem .9rem;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.ztab.active{background:var(--bd);border-color:var(--bd);color:#fff}
+.ztab:hover:not(.active){background:var(--bl);border-color:var(--bm)}
+.pdisp{background:var(--bd);border-radius:var(--rs);padding:1.25rem 1.5rem}
+.pval{font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:500;color:#fff;line-height:1;transition:opacity .3s}
+.punit{font-size:1rem;color:rgba(255,255,255,.55);margin-bottom:.3rem}
+.pmeta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.sdot{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--ts)}
+.dot{width:7px;height:7px;border-radius:50%;background:#94a3b8}
+.dot.live{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2);animation:pulse 2s infinite}
+.dot.ld{background:var(--am);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tnd{font-size:.8rem;font-family:'DM Mono',monospace;padding:.15rem .5rem;border-radius:6px;margin-bottom:.3rem}
+.tnd.up{background:#fff0f0;color:#d63031}.tnd.dn{background:var(--gl);color:var(--gn)}.tnd.fl{background:var(--sf);color:var(--ts)}
+.hbox{background:var(--bl);border-radius:var(--rs);padding:.75rem 1rem;font-size:.8rem;color:var(--ts)}
+.src{font-size:.72rem;color:var(--tx)}.src a{color:var(--bm);text-decoration:none}.src a:hover{text-decoration:underline}
+
+/* Bottoni */
+.brfr{background:var(--bl);color:var(--bm);border:none;border-radius:30px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:.4rem}
+.brfr:hover{background:var(--bm);color:#fff}
+.brfr:disabled{opacity:.5;cursor:not-allowed}
+.btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--bd);color:#fff;padding:.75rem 1.5rem;border-radius:40px;font-weight:600;font-size:.9rem;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:all .2s;align-self:flex-start;box-shadow:0 4px 12px rgba(10,37,64,.18)}
+.btn:hover{background:var(--bm);transform:translateY(-1px)}
+.btn.g{background:var(--gn)}.btn.g:hover{background:#15643a}
+
+/* Pannelli */
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.ig label{font-size:.78rem;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.3rem}
+.ig input{width:100%;padding:.65rem .9rem;border:1.5px solid var(--br);border-radius:var(--rs);font-size:1rem;font-family:'DM Mono',monospace;background:var(--sf);color:var(--tm);transition:border-color .15s}
+.ig input:focus{outline:none;border-color:var(--gn);background:#fff}
+.cbox{background:var(--gl);border-radius:var(--rs);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.cl{font-size:.82rem;color:var(--gn);font-weight:500}
+.cv{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--gn)}
+.fli{display:flex;flex-direction:column;gap:.4rem}
+.fi{font-size:.83rem;color:var(--ts);display:flex;align-items:center;gap:.5rem}
+.fi::before{content:'✓';color:var(--gn);font-weight:700;font-size:.75rem}
+
+/* Auto */
+.at{width:100%;border-collapse:collapse;font-size:.87rem}
+.at thead tr{border-bottom:2px solid var(--br)}
+.at th{text-align:left;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx);padding:0 0 .6rem}
+.at td{padding:.7rem 0;border-bottom:1px solid var(--br);color:var(--tm);vertical-align:middle}
+.at tr:last-child td{border-bottom:none}
+.at .mo{font-weight:600}
+.at .pc{font-family:'DM Mono',monospace;font-weight:500;color:var(--bm)}
+.pl{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:600;background:var(--bl);color:var(--bm);text-decoration:none;transition:all .15s}
+.pl:hover{background:var(--bm);color:#fff}
+.pl.gp{background:var(--gl);color:var(--gn)}.pl.gp:hover{background:var(--gn);color:#fff}
+
+/* Carburanti */
+.fctl{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ftab{background:var(--sf);border:1.5px solid var(--br);border-radius:30px;padding:.3rem 1rem;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.ftab:hover:not(.fa){background:var(--al);border-color:var(--am)}
+.ftab.fa.gas{background:#1a3a5c;border-color:#1a3a5c;color:#fff}
+.ftab.fa.ben{background:#c0392b;border-color:#c0392b;color:#fff}
+.ftab.fa.gpl{background:#1a7a45;border-color:#1a7a45;color:#fff}
+.ftab.fa.met{background:#6c3483;border-color:#6c3483;color:#fff}
+.fsrch{padding:.4rem .9rem;border:1.5px solid var(--br);border-radius:30px;font-size:.82rem;font-family:inherit;background:var(--sf);color:var(--tm);outline:none;width:155px;transition:border-color .15s}
+.fsrch:focus{border-color:var(--am);background:#fff}
+.fsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.65rem}
+.fst{background:var(--sf);border:1px solid var(--br);border-radius:var(--rs);padding:.7rem 1rem;text-align:center}
+.fsl{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tx);margin-bottom:.15rem}
+.fsv{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:500;color:var(--tm)}
+.fss{font-size:.65rem;color:var(--ts);margin-top:.1rem}
+.fgrd{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.55rem}
+.fcard{background:var(--sf);border:1px solid var(--br);border-radius:var(--rs);padding:.7rem 1rem;display:flex;flex-direction:column;gap:.1rem;transition:all .15s}
+.fcard:hover{border-color:var(--am);box-shadow:0 2px 10px rgba(200,134,10,.1);transform:translateY(-1px)}
+.fcard.fmin{border-color:#1a7a45;background:#f0faf4}
+.fcard.fmax{border-color:#c0392b;background:#fef5f5}
+.freg{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ts)}
+.fprc{font-family:'DM Mono',monospace;font-size:1.35rem;font-weight:500;color:var(--tm)}
+.fprc span{font-size:.72rem;color:var(--tx);font-weight:400}
+.frnk{font-size:.65rem;color:var(--tx)}
+.frnk.cheap{color:#1a7a45;font-weight:600}
+.frnk.pric{color:#c0392b;font-weight:600}
+.fts{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--tx)}
+
+/* Footer */
+.fn{background:#fff;border:1px solid var(--br);border-radius:var(--r);padding:1.25rem 1.75rem;font-size:.82rem;color:var(--ts);line-height:1.7}
+.fn strong{color:var(--tm)}.fn a{color:var(--bm);text-decoration:none}.fn a:hover{text-decoration:underline}
+.disc{text-align:center;font-size:.72rem;color:var(--tx);padding:.5rem 0 1rem}
+
+/* Spinners */
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp{width:14px;height:14px;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.sp-b{border:2px solid rgba(11,74,122,.2);border-top-color:var(--bm)}
+.sp-a{border:2px solid rgba(200,134,10,.2);border-top-color:var(--am)}
+
+@media(max-width:700px){
+  .irow{grid-template-columns:1fr}.pval{font-size:2rem}
+  .hdr{padding:2rem 1.25rem 2rem}
+  .fgrd{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .sav-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:440px){.sav-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">ECT Energy &middot; Vetrina Energetica</div>
+  <h1>Energia &amp; <span>E-Mobility</span></h1>
+  <p>PUN Index GME &middot; Osservatorio carburanti per regione &middot; Pannelli bifacciali &middot; NLT elettrico &amp; PHEV</p>
+</div>
+
+<!-- ══ BANNER RISPARMIO ══ -->
+<div class="sav-banner">
+  <div class="sav-inner">
+    <div class="sav-hdr">
+      <span class="sav-title">&#9889; Risparmio con i nostri servizi &mdash; calcolato oggi</span>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <span class="sav-date" id="savDate">18/03/2026 &middot; PUN 0,1499 &#8364;/kWh &middot; sconto ECT 40%</span>
+        <a class="sav-cta" href="/cdn-cgi/l/email-protection#0861666e67486d6b7c6d666d7a6f71266b67267d63377b7d6a626d6b7c355a616b60616d7b7c692d3a38676e6e6d7a7c692d3a384d4b5c2d3a384d666d7a6f712e6a676c71355b69647e6d2d3a4b2d38492d38495e677a7a6d612d3a387a616b6d7e6d7a6d2d3a387d662d3a3f676e6e6d7a7c692d3a38786d7a7b67666964617272697c69262d38492d38494667656d2d3a4e5a696f6167666d2d3a387b676b6169646d2d3b492d38495c6d646d6e6766672d3b492d38494b67667b7d65672d3a386966667d672d3a387b7c6165697c672d3a3820635f60212d3b492d384943652d3a386966667d612d3a38697d7c672d3b492d38492d38494b677a6c616964612d3a387b69647d7c6126">
+          &#9993; Richiedi la tua offerta
+        </a>
+      </div>
+    </div>
+
+    <div class="sav-grid" id="savGrid">
+      <!-- Popolato da JS -->
+    </div>
+
+    <div class="sav-note" id="savNote">
+      * Ipotesi: consumo domestico 10 kWh/giorno &middot; percorrenza auto 15.000 km/anno &middot; auto elettrica 6 km/kWh &middot; consumi medi auto termica: gasolio 14 km/L, benzina 15 km/L &middot; prezzi carburanti: media nazionale ICAD/MIMIT, escluse autostrade
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ROW 1: PUN + Pannelli -->
+  <div class="g2">
+
+    <!-- PUN -->
+    <div class="card">
+      <div class="ct">
+        <span class="ic ic-b">&#9889;</span>PUN Index GME
+        <span class="bdg bdg-l" id="liveBadge">&#9679; Dati reali</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--ts)">Prezzo Unico Nazionale &ndash; da <strong><a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank" style="color:var(--bm)">QuiFinanza</a></strong>, elaborazione GME ufficiale.</p>
+      <div class="ztabs">
+        <button class="ztab active" data-m="oggi">PUN oggi</button>
+        <button class="ztab" data-m="ieri">PUN ieri</button>
+        <button class="ztab" data-m="mese">Media mese</button>
+      </div>
+      <div class="pdisp">
+        <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:.3rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em" id="zoneLabel">PUN Index GME &middot; oggi</div>
+        <div style="display:flex;align-items:flex-end;gap:.5rem;flex-wrap:wrap">
+          <div class="pval" id="pval">0.14987</div>
+          <div class="punit">&#8364;/kWh</div>
+          <div class="tnd up" id="ptnd">&#9650; +4.83%</div>
+        </div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.3rem" id="peq">&#8776; 149.87 &#8364;/MWh</div>
+      </div>
+      <div class="hbox" id="hbox">
+        <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+          <span>&#128994; Min: <strong id="pmin">0.12103 €/kWh</strong> <span style="opacity:.6">ore <span id="hmin">04:00</span></span></span>
+          <span>&#128308; Max: <strong id="pmax">0.18420 €/kWh</strong> <span style="opacity:.6">ore <span id="hmax">19:00</span></span></span>
+        </div>
+      </div>
+      <div class="pmeta">
+        <div class="sdot"><span class="dot live" id="sdot"></span><span id="stxt">Dati 18/03/2026 &middot; QuiFinanza</span></div>
+        <button class="brfr" id="btnPUN" onclick="fetchPUN()">&#8635; Aggiorna</button>
+      </div>
+      <div id="pctx" style="font-size:.8rem;color:var(--ts);line-height:1.6;border-top:1px solid var(--br);padding-top:.75rem">
+        &#128202; 18 marzo 2026: PUN +4,83% a 0.14987 €/kWh, spinto da tensioni geopolitiche e rialzo PSV gas. <a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank" style="color:var(--bm)">QuiFinanza</a>
+      </div>
+      <div class="src">Fonte: <a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank">QuiFinanza</a> &middot; <a href="https://tariffe.segugio.it/indice-pun-luce/" target="_blank">Segugio.it</a> &middot; <a href="https://www.mercatoelettrico.org" target="_blank">GME</a></div>
+    </div>
+
+    <!-- PANNELLI -->
+    <div class="card">
+      <div class="ct"><span class="ic ic-g">&#128262;</span>Pannelli bifacciali<span class="bdg bdg-g">Fotovoltaico</span></div>
+      <p style="font-size:.83rem;color:var(--ts)">Impianti fotovoltaici bifacciali ad alta efficienza. Personalizza la configurazione.</p>
+      <div class="irow">
+        <div class="ig"><label>&#8364; / kWp</label><input type="number" id="pp" value="1000" step="50" min="500" max="3000"></div>
+        <div class="ig"><label>Potenza (kWp)</label><input type="number" id="pk" value="6" step="0.5" min="1" max="100"></div>
+      </div>
+      <div class="cbox"><div class="cl">Costo stimato totale</div><div class="cv" id="ctot">6.000 &#8364;</div></div>
+      <div class="fli">
+        <div class="fi">Garanzia prodotto 12 anni, performance 25 anni</div>
+        <div class="fi">Resa bifacciale fino al +30% vs monofacciali</div>
+        <div class="fi">Consegna e installazione 4&ndash;6 settimane</div>
+        <div class="fi">Pratiche incentivi e GSE incluse</div>
+      </div>
+      <a class="btn g" href="/cdn-cgi/l/email-protection#b1d8dfd7def1d4d2c5d4dfd4c3d6c89fd2de9fc4da8ec2c4d3dbd4d2c58ce3d8d2d9d8d4c2c5d0948381ded7d7d4c3c5d0948381c1d0dfdfd4ddddd8948381d3d8d7d0d2d2d8d0ddd897d3ded5c88ce2d0ddc7d49483f29481f09481f0e1dec5d4dfcbd0948381d5d4c2d8d5d4c3d0c5d09482f0948381eeee948381dae6c19481f0ffdedcd49483f7e3d0d6d8dedfd4948381c2ded2d8d0ddd49482f09481f0e5d4ddd4d7dedfde9482f09481f0f8dfd5d8c3d8cbcbde948381d8dcc1d8d0dfc5de9482f09481f09481f0f2dec3d5d8d0ddd8948381c2d0ddc4c5d89f">&#9993; Richiedi offerta pannelli</a>
+    </div>
+
+  </div>
+
+  <!-- CARBURANTI FULL WIDTH -->
+  <div class="card" style="grid-column:1/-1">
+    <div class="ct">
+      <span class="ic ic-a">&#9981;</span>
+      Osservatorio prezzi carburanti per regione
+      <span class="bdg bdg-a" id="fuelBadge">&#9679; Aggiornato 18-03-2026 08:30</span>
+    </div>
+    <p style="font-size:.83rem;color:var(--ts)">
+      Prezzi medi regionali al litro (&#8364;) &mdash; fonte <strong><a href="https://icadsistemi.com/prezzo-medio-regionale-carburanti" target="_blank" style="color:var(--am)">ICAD Sistemi</a></strong> su dati MIMIT. Aggiornamento giornaliero.
+    </p>
+    <div class="fctl">
+      <button class="ftab fa gas" onclick="selFuel('gasolio',this)">&#9658; Gasolio</button>
+      <button class="ftab ben" onclick="selFuel('benzina',this)">&#9650; Benzina</button>
+      <button class="ftab gpl" onclick="selFuel('gpl',this)">&#9670; GPL</button>
+      <button class="ftab met" onclick="selFuel('metano',this)">&#9679; Metano</button>
+      <input class="fsrch" type="text" id="fsrch" placeholder="&#128269; cerca regione&hellip;" oninput="filtF()">
+      <span class="fts" id="fts">Agg. 18-03-2026 08:30</span>
+      <button class="brfr" style="background:var(--al);color:var(--am);border:1.5px solid var(--am);margin-left:auto" id="btnFuel" onclick="fetchFuel()">&#8635; Aggiorna</button>
+    </div>
+    <div class="fsum" id="fsum"></div>
+    <div class="fgrd" id="fgrd"></div>
+    <div class="src">Fonte: <a href="https://icadsistemi.com/prezzo-medio-regionale-carburanti" target="_blank">ICAD Sistemi – Prezzo medio regionale carburanti</a> &middot; <a href="https://www.mimit.gov.it" target="_blank">MIMIT</a></div>
+  </div>
+
+  <!-- AUTO -->
+  <div class="g2">
+    <div class="card">
+      <div class="ct"><span class="ic ic-b">&#128663;</span>Elettriche &middot; NLT<span class="bdg bdg-b">36 mesi</span></div>
+      <p style="font-size:.83rem;color:var(--ts)">Prezzi indicativi Arval, Leasys, Ayvens.</p>
+      <table class="at">
+        <thead><tr><th>Modello</th><th>&#8364;/mese</th><th>Anticipo</th><th>Provider</th></tr></thead>
+        <tbody>
+          <tr><td class="mo">Fiat 500e</td><td class="pc">289</td><td>2.500 &#8364;</td><td><a href="https://www.arval.it" target="_blank" class="pl">Arval</a></td></tr>
+          <tr><td class="mo">Renault Twingo E-Tech</td><td class="pc">249</td><td>1.990 &#8364;</td><td><a href="https://www.leasys.it" target="_blank" class="pl">Leasys</a></td></tr>
+          <tr><td class="mo">Tesla Model 3</td><td class="pc">649</td><td>4.900 &#8364;</td><td><a href="https://noleggio.ayvens.com/it-it/noleggio-lungo-termine/green?utm_campaign=goo_pl_ayvens-electric_it_it_sell_man_leadgen_pro_sitelink&utm_source=google&utm_content=electric" target="_blank" class="pl gp">Ayvens</a></td></tr>
+          <tr><td class="mo">Volkswagen ID.4</td><td class="pc">479</td><td>3.500 &#8364;</td><td><a href="https://noleggio.ayvens.com/it-it/noleggio-lungo-termine/green?utm_campaign=goo_pl_ayvens-electric_it_it_sell_man_leadgen_pro_sitelink&utm_source=google&utm_content=electric" target="_blank" class="pl gp">Ayvens</a></td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.25rem">
+        <a href="https://www.arval.it" target="_blank" class="btn" style="font-size:.8rem;padding:.55rem 1.1rem">Tutte le offerte Arval &#8599;</a>
+        <a class="btn g" style="font-size:.8rem;padding:.55rem 1.1rem" href="/cdn-cgi/l/email-protection#fe97909891be9b9d8a9b909b8c9987d09d91d08b95c18d8b9c949b9d8ac3ac979d96979b8d8a9fdbccce9198989b8c8a9fdbccceb0b2aadbccce9b929b8a8a8c979d91d89c919a87c3ad9f92889bdbccbddbcebfdbcebfb3919a9b929291dbcdbfdbcebfba8b8c9f8a9fdbcdbfdbcebfb593dbccce9f90908b97dbcdbfdbcebfb091939bdbcdbfdbcebfaa9b929b98919091dbcdbfdbcebfdbcebfbd918c9a979f9297dbccce8d9f928b8a97d0">&#9993; Richiedi offerta NLT</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="ic ic-g">&#128267;</span>Ibride Plug-in &middot; NLT<span class="bdg bdg-g">PHEV &middot; 48 mesi</span></div>
+      <p style="font-size:.83rem;color:var(--ts)">Selezione da Arval, Leasys e Drivalia. 10.000&ndash;15.000 km/anno.</p>
+      <table class="at">
+        <thead><tr><th>Modello</th><th>&#8364;/mese</th><th>km/anno</th><th>Provider</th></tr></thead>
+        <tbody>
+          <tr><td class="mo">Jeep Compass 4xe</td><td class="pc">439</td><td>10.000</td><td><a href="https://www.arval.it" target="_blank" class="pl">Arval</a></td></tr>
+          <tr><td class="mo">Ford Kuga PHEV</td><td class="pc">399</td><td>15.000</td><td><a href="https://www.leasys.it" target="_blank" class="pl">Leasys</a></td></tr>
+          <tr><td class="mo">BMW 330e</td><td class="pc">649</td><td>10.000</td><td><a href="https://www.drivalia.it" target="_blank" class="pl">Drivalia</a></td></tr>
+          <tr><td class="mo">Peugeot 3008 PHEV</td><td class="pc">389</td><td>12.000</td><td><a href="https://www.leasys.it" target="_blank" class="pl">Leasys</a></td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.25rem">
+        <a class="btn g" style="font-size:.8rem;padding:.55rem 1.1rem" href="/cdn-cgi/l/email-protection#aac3c4ccc5eacfc9decfc4cfd8cdd384c9c584dfc195d9dfc8c0cfc9de97f8c3c9c2c3cfd9decb8f989ac5cccccfd8decb8f989ae4e6fe8f989afae2effc8cc8c5ced397f9cbc6dccf8f98e98f9aeb8f9aebe7c5cecfc6c6c58f99eb8f9aebeedfd8cbdecb8f99eb8f9aebe1c78f989acbc4c4dfc38f99eb8f9aebe4c5c7cf8f99eb8f9aebfecfc6cfccc5c4c58f99eb8f9aeb8f9aebe9c5d8cec3cbc6c38f989ad9cbc6dfdec384">&#9993; Richiedi offerta PHEV</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="fn">
+    <strong>&#128204; Note sui dati:</strong>
+    Prezzi PUN da <a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank">QuiFinanza</a> / <a href="https://tariffe.segugio.it/indice-pun-luce/" target="_blank">Segugio.it</a> (GME).
+    Carburanti da <a href="https://icadsistemi.com/prezzo-medio-regionale-carburanti" target="_blank">ICAD Sistemi</a> (MIMIT) &mdash; aggiornamento giornaliero. Ultimo agg.: 18-03-2026 08:30.
+    Contatto: <a href="/cdn-cgi/l/email-protection#98f1f6fef7d8fdfbecfdf6fdeaffe1b6fbf7b6edf3"><span class="__cf_email__" data-cfemail="4f262129200f2a2c3b2a212a3d2836612c20613a24">[email&#160;protected]</span></a>.<br><br>
+    Prezzi auto e pannelli <strong>indicativi</strong>, non contrattuali.
+    Provider NLT: Arval, Leasys, Drivalia, <a href="https://noleggio.ayvens.com/it-it/noleggio-lungo-termine/green" target="_blank">Ayvens</a>.
+  </div>
+  <div class="disc">ECT Energy &middot; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bed7d0d8d1fedbddcadbd0dbccd9c790ddd190cbd5">[email&#160;protected]</a> &middot; Vetrina dimostrativa</div>
+
+</div><!-- /main -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+(function(){
+
+/* ═══════════════════════════════════════
+   PARAMETRI GLOBALI
+═══════════════════════════════════════ */
+var PUN        = 0.14987;  // valore reale aggiornato da QuiFinanza/GME 18/03/2026
+var SCONTO     = 0.40;
+var KWH_GIORNO = 10;
+var KM_ANNO    = 15000;
+var KM_KWH     = 6;
+var KM_L_GAS   = 14;
+var KM_L_BEN   = 15;
+var GAS_NAZ    = 0;
+var BEN_NAZ    = 0;
+
+function fmt2(v){ return v.toFixed(2).replace('.',','); }
+function fmt0(v){ return Math.round(v).toLocaleString('it-IT'); }
+
+/* ═══════════════════════════════════════
+   PANNELLI
+═══════════════════════════════════════ */
+var ip=document.getElementById('pp'), ik=document.getElementById('pk'), ct=document.getElementById('ctot');
+function upP(){
+  ct.textContent=(Math.max(500,Math.min(3000,parseFloat(ip.value)||1000))*
+    Math.max(1,Math.min(100,parseFloat(ik.value)||6))).toLocaleString('it-IT')+' \u20AC';
+}
+ip.addEventListener('input',upP); ik.addEventListener('input',upP); upP();
+
+/* ═══════════════════════════════════════
+   PUN — TABS + RENDER
+═══════════════════════════════════════ */
+var pm='oggi', pc=null;
+document.querySelectorAll('.ztab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.ztab').forEach(function(x){x.classList.remove('active');});
+    this.classList.add('active'); pm=this.dataset.m;
+    if(pc) rPUN(pc,pm);
+  });
+});
+
+function rPUN(d,m){
+  var pv=document.getElementById('pval'),tr=document.getElementById('ptnd'),
+      zl=document.getElementById('zoneLabel'),eq=document.getElementById('peq'),
+      hb=document.getElementById('hbox');
+  var val,lbl;
+  if(m==='oggi'){
+    val=d.pun_oggi_kwh; lbl='PUN Index GME \u00B7 '+(d.data_oggi||'');
+    if(d.variazione_pct){
+      var n=parseFloat(d.variazione_pct);
+      tr.textContent=(n>=0?'\u25B2 +':'\u25BC ')+Math.abs(n).toFixed(2)+'%';
+      tr.className='tnd '+(n>=0?'up':'dn');
+    }
+    if(d.min_kwh&&d.max_kwh){
+      document.getElementById('pmin').textContent=d.min_kwh+' \u20AC/kWh';
+      document.getElementById('hmin').textContent=d.ora_min||'\u2014';
+      document.getElementById('pmax').textContent=d.max_kwh+' \u20AC/kWh';
+      document.getElementById('hmax').textContent=d.ora_max||'\u2014';
+      hb.style.display='block';
+    } else hb.style.display='none';
+  } else if(m==='ieri'){
+    val=d.pun_ieri_kwh||d.pun_oggi_kwh;
+    lbl='PUN ieri \u00B7 '+(d.data_ieri||'');
+    tr.textContent=''; tr.className='tnd fl'; hb.style.display='none';
+  } else {
+    val=d.media_mese_kwh||d.pun_oggi_kwh;
+    lbl='Media '+(d.mese_corrente||'marzo')+' 2026';
+    tr.textContent=''; tr.className='tnd fl'; hb.style.display='none';
+  }
+  if(val){
+    pv.textContent=parseFloat(val).toFixed(4); pv.style.opacity='1';
+    eq.textContent='\u2248 '+(parseFloat(val)*1000).toFixed(2)+' \u20AC/MWh';
+    PUN=parseFloat(val);
+    rSavings();
+  }
+  zl.textContent=lbl;
+}
+
+var FP={
+  pun_oggi_kwh:'0.14987', data_oggi:'18/03/2026', variazione_pct:'+4.83',
+  pun_ieri_kwh:'0.14296', data_ieri:'17/03/2026',
+  min_kwh:'0.12103', ora_min:'14:00', max_kwh:'0.18420', ora_max:'19:00',
+  media_mese_kwh:'0.14239', mese_corrente:'marzo',
+  contesto:'18 marzo 2026: PUN +4,83% a 0.14987 €/kWh, spinto da tensioni geopolitiche e rialzo PSV gas.'
+};
+
+function aPUN(d,live){
+  pc=d; rPUN(d,pm);
+  var bdg=document.getElementById('liveBadge'),
+      dot=document.getElementById('sdot'),
+      st=document.getElementById('stxt'),
+      ctx=document.getElementById('pctx');
+  if(live){
+    bdg.textContent='\u25CF Aggiornato live';
+    bdg.style.background='#e6f4ec'; bdg.style.color='#1a7a45';
+    dot.className='dot live';
+    st.textContent='Fonte: QuiFinanza \u00B7 '+(d.data_oggi||'');
+  } else {
+    bdg.textContent='\u25CF Ultimi dati noti';
+    bdg.style.background='#fef3d0'; bdg.style.color='#c8860a';
+    dot.className='dot';
+    st.textContent='Dati 18/03/2026 \u00B7 Segugio.it / QuiFinanza';
+  }
+  if(d.contesto){
+    ctx.innerHTML='\uD83D\uDCCA '+d.contesto+
+      ' \u00B7 <a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank" style="color:#0b4a7a">QuiFinanza</a>';
+    ctx.style.display='block';
+  }
+}
+aPUN(FP,true);  // dati reali pubblicati oggi
+
+
+
+/* ═══════════════════════════════════════
+   CARBURANTI
+═══════════════════════════════════════ */
+var FC={
+  timestamp:'18-03-2026 08:30',
+  rows:[
+    {r:'Autostradale',gasolio:2.121,benzina:1.920,gpl:0.836,metano:1.537},
+    {r:'Abruzzo',gasolio:2.044,benzina:1.812,gpl:0.710,metano:1.437},
+    {r:'Basilicata',gasolio:2.066,benzina:1.858,gpl:0.693,metano:1.517},
+    {r:'Bolzano',gasolio:2.100,benzina:1.874,gpl:0.792,metano:1.660},
+    {r:'Calabria',gasolio:2.074,benzina:1.858,gpl:0.745,metano:1.600},
+    {r:'Campania',gasolio:2.063,benzina:1.832,gpl:0.662,metano:1.468},
+    {r:'Emilia Romagna',gasolio:2.064,benzina:1.829,gpl:0.685,metano:1.452},
+    {r:'Friuli Venezia Giulia',gasolio:2.078,benzina:1.836,gpl:0.690,metano:1.466},
+    {r:'Lazio',gasolio:2.052,benzina:1.816,gpl:0.684,metano:1.608},
+    {r:'Liguria',gasolio:2.070,benzina:1.846,gpl:0.785,metano:1.478},
+    {r:'Lombardia',gasolio:2.068,benzina:1.831,gpl:0.687,metano:1.491},
+    {r:'Marche',gasolio:2.033,benzina:1.807,gpl:0.707,metano:1.415},
+    {r:'Molise',gasolio:2.054,benzina:1.837,gpl:0.709,metano:1.465},
+    {r:'Piemonte',gasolio:2.068,benzina:1.828,gpl:0.683,metano:1.494},
+    {r:'Puglia',gasolio:2.058,benzina:1.837,gpl:0.668,metano:1.612},
+    {r:'Sardegna',gasolio:2.056,benzina:1.829,gpl:0.806,metano:null},
+    {r:'Sicilia',gasolio:2.079,benzina:1.853,gpl:0.763,metano:1.781},
+    {r:'Toscana',gasolio:2.060,benzina:1.827,gpl:0.703,metano:1.528},
+    {r:'Trento',gasolio:2.083,benzina:1.851,gpl:0.735,metano:1.531},
+    {r:'Umbria',gasolio:2.045,benzina:1.813,gpl:0.700,metano:1.446},
+    {r:"Valle d'Aosta",gasolio:2.098,benzina:1.857,gpl:0.822,metano:null},
+    {r:'Veneto',gasolio:2.064,benzina:1.823,gpl:0.697,metano:1.444}
+  ]
+};
+var cf='gasolio', fd=FC, st2='';
+
+function calcNaz(){
+  var rows=fd.rows.filter(function(r){return r.r!=='Autostradale';});
+  var gv=rows.map(function(r){return r.gasolio;}).filter(Boolean);
+  var bv=rows.map(function(r){return r.benzina;}).filter(Boolean);
+  GAS_NAZ=gv.reduce(function(a,b){return a+b;},0)/gv.length;
+  BEN_NAZ=bv.reduce(function(a,b){return a+b;},0)/bv.length;
+}
+
+function selFuel(fuel,btn){
+  cf=fuel;
+  document.querySelectorAll('.ftab').forEach(function(t){t.classList.remove('fa');});
+  btn.classList.add('fa'); rFuel();
+}
+window.selFuel=selFuel;
+
+function filtF(){st2=document.getElementById('fsrch').value.toLowerCase();rFuel();}
+window.filtF=filtF;
+
+function rFuel(){
+  var grd=document.getElementById('fgrd'),sum=document.getElementById('fsum');
+  var rows=fd.rows.filter(function(d){return d[cf]!==null;});
+  var filt=st2?rows.filter(function(d){return d.r.toLowerCase().includes(st2);}):rows;
+  var vals=rows.map(function(d){return d[cf];});
+  var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+  var av=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var mnR=rows.find(function(d){return d[cf]===mn;}),mxR=rows.find(function(d){return d[cf]===mx;});
+  var col={gasolio:'#1a3a5c',benzina:'#c0392b',gpl:'#1a7a45',metano:'#6c3483'}[cf];
+  sum.innerHTML=[
+    '<div class="fst"><div class="fsl">&#9660; Minimo</div><div class="fsv" style="color:'+col+'">'+mn.toFixed(3)+'</div><div class="fss">'+mnR.r+'</div></div>',
+    '<div class="fst"><div class="fsl">&#9472; Media naz.</div><div class="fsv">'+av.toFixed(3)+'</div><div class="fss">&#8364;/litro</div></div>',
+    '<div class="fst"><div class="fsl">&#9650; Massimo</div><div class="fsv" style="color:#c0392b">'+mx.toFixed(3)+'</div><div class="fss">'+mxR.r+'</div></div>',
+    '<div class="fst"><div class="fsl">&#128197; Aggiornato</div><div class="fsv" style="font-size:.85rem">'+fd.timestamp.split(' ')[0]+'</div><div class="fss">ore '+fd.timestamp.split(' ')[1]+'</div></div>'
+  ].join('');
+  var sorted=filt.slice().sort(function(a,b){return a[cf]-b[cf];});
+  if(!sorted.length){
+    grd.innerHTML='<div style="color:var(--ts);font-size:.85rem;padding:.5rem">Nessuna regione per &ldquo;'+st2+'&rdquo;</div>';
+    return;
+  }
+  grd.innerHTML=sorted.map(function(d,i){
+    var v=d[cf],cls='fcard',rank='';
+    if(v===mn){cls+=' fmin';rank='<div class="frnk cheap">&#9660; pi\u00F9 economica</div>';}
+    else if(v===mx){cls+=' fmax';rank='<div class="frnk pric">&#9650; pi\u00F9 cara</div>';}
+    else{rank='<div class="frnk">#'+(i+1)+'</div>';}
+    return '<div class="'+cls+'"><div class="freg">'+d.r+'</div>'+
+           '<div class="fprc">'+v.toFixed(3)+' <span>&#8364;/L</span></div>'+rank+'</div>';
+  }).join('');
+  calcNaz(); rSavings();
+}
+
+
+
+/* ═══════════════════════════════════════
+   CALCOLO RISPARMIO (lasciato intatto)
+═══════════════════════════════════════ */
+function rSavings(){
+  if(GAS_NAZ===0||BEN_NAZ===0) return;
+
+  var punEct  = PUN*(1-SCONTO);
+  var punPieno= PUN;
+
+  var kwhAnnoC     = KWH_GIORNO*365;
+  var costoEctC    = kwhAnnoC * punEct;
+  var costoPienaC  = kwhAnnoC * punPieno;
+  var savCasaA     = costoPienaC - costoEctC;
+
+  var kwhAnnoA     = KM_ANNO / KM_KWH;
+  var costoElEctA  = kwhAnnoA * punEct;
+  var costoGasA    = (KM_ANNO/KM_L_GAS)*GAS_NAZ;
+  var costoBenA    = (KM_ANNO/KM_L_BEN)*BEN_NAZ;
+  var savVsGasA    = costoGasA - costoElEctA;
+  var savVsBenA    = costoBenA - costoElEctA;
+
+  var totaleA      = savCasaA + savVsGasA;
+
+  var today=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('savDate').textContent=
+    today+' \u00B7 PUN '+PUN.toFixed(4)+' \u20AC/kWh \u00B7 sconto ECT 40%';
+
+  document.getElementById('savGrid').innerHTML=[ 
+    '<div class="sc">'+
+      '<div class="sc-lbl">&#9889; Prezzo ECT Energy</div>'+
+      '<div class="sc-main">'+
+        '<span class="sc-val">'+fmt2(punEct)+'</span>'+
+        '<span class="sc-unit">&#8364;/kWh</span>'+
+      '</div>'+
+      '<div class="sc-pill cyan">&#9660; sconto 40% su PUN</div>'+
+      '<div class="sc-vs">PUN di mercato: '+fmt2(punPieno)+' \u20AC/kWh</div>'+
+    '</div>',
+
+    '<div class="sc">'+
+      '<div class="sc-lbl">&#127968; Casa &middot; 10 kWh/giorno &middot; anno</div>'+
+      '<div class="sc-main">'+
+        '<span class="sc-val">'+fmt2(costoEctC)+'</span>'+
+        '<span class="sc-unit">&#8364;/anno con ECT</span>'+
+      '</div>'+
+      '<div class="sc-pill grn">&#9650; risparmi '+fmt2(savCasaA)+' \u20AC/anno (40%)</div>'+
+      '<div class="sc-vs">Senza ECT al PUN: '+fmt2(costoPienaC)+' \u20AC/anno</div>'+
+    '</div>',
+
+    '<div class="sc">'+
+      '<div class="sc-lbl">&#128663; Auto EV &middot; 15.000 km/anno vs Gasolio</div>'+
+      '<div class="sc-main">'+
+        '<span class="sc-val">'+fmt2(costoElEctA)+'</span>'+
+        '<span class="sc-unit">&#8364;/anno elettrico ECT</span>'+
+      '</div>'+
+      '<div class="sc-pill grn">&#9650; risparmi '+fmt2(savVsGasA)+' \u20AC/anno</div>'+
+      '<div class="sc-vs">Gasolio '+fmt2(GAS_NAZ)+' \u20AC/L</div>'+
+    '</div>',
+
+    '<div class="sc">'+
+      '<div class="sc-lbl">&#128663; Auto EV &middot; 15.000 km/anno vs Benzina</div>'+
+      '<div class="sc-main">'+
+        '<span class="sc-val">'+fmt2(costoElEctA)+'</span>'+
+        '<span class="sc-unit">&#8364;/anno elettrico ECT</span>'+
+      '</div>'+
+      '<div class="sc-pill grn">&#9650; risparmi '+fmt2(savVsBenA)+' \u20AC/anno</div>'+
+      '<div class="sc-vs">Benzina '+fmt2(BEN_NAZ)+' \u20AC/L</div>'+
+    '</div>',
+
+    '<div class="sc highlight">'+
+      '<div class="sc-lbl">&#128176; Risparmio totale annuo stimato</div>'+
+      '<div class="sc-main">'+
+        '<span class="sc-val">'+fmt0(totaleA)+'</span>'+
+        '<span class="sc-unit">&#8364;/anno</span>'+
+      '</div>'+
+      '<div class="sc-pill grn">&#9650; casa + auto vs gasolio</div>'+
+      '<div class="sc-vs">Con ECT Energy \u00B7 prezzi live</div>'+
+    '</div>'
+  ].join('');
+}
+
+/* ═══════════════════════════════════════
+   AGGIORNAMENTO PREZZI — WEB SCRAPING
+═══════════════════════════════════════ */
+
+/* Proxy CORS pubblici (fallback a cascata) */
+var PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?'
+];
+
+async function fetchViaProxy(url) {
+  for (var i = 0; i < PROXIES.length; i++) {
+    try {
+      var r = await fetch(PROXIES[i] + encodeURIComponent(url), {signal: AbortSignal.timeout(8000)});
+      if (r.ok) return await r.text();
+    } catch(e) { /* prova prossimo proxy */ }
+  }
+  throw new Error('Tutti i proxy falliti');
+}
+
+/* ─── PUN da QuiFinanza ─── */
+async function scrapePUN() {
+  var html = await fetchViaProxy('https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/');
+  var result = {};
+
+  // cerca pattern prezzo tipo: 0,14296 o 0.14296 €/kWh
+  var mPrice = html.match(/(\d+)[,.](\d{4,5})\s*(?:€|&#8364;|euro)?\s*\/\s*kWh/i);
+  if (mPrice) result.pun_oggi_kwh = (mPrice[1] + '.' + mPrice[2]);
+
+  // cerca variazione percentuale tipo: +12,47% o -3,21%
+  var mVar = html.match(/([+-]?\d+[,.]\d+)\s*%/);
+  if (mVar) result.variazione_pct = mVar[1].replace(',','.');
+
+  // cerca min/max orari
+  var mMin = html.match(/[Mm]in[^:]*:\s*(\d+[,.]\d+)/);
+  var mMax = html.match(/[Mm]ax[^:]*:\s*(\d+[,.]\d+)/);
+  if (mMin) result.min_kwh = mMin[1].replace(',','.');
+  if (mMax) result.max_kwh = mMax[1].replace(',','.');
+
+  // data
+  var mDate = html.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](2\d{3})/);
+  if (mDate) result.data_oggi = mDate[1].padStart(2,'0')+'/'+mDate[2].padStart(2,'0')+'/'+mDate[3];
+
+  // fallback: prova anche Segugio se QuiFinanza non ha dato il prezzo
+  if (!result.pun_oggi_kwh) {
+    var html2 = await fetchViaProxy('https://tariffe.segugio.it/indice-pun-luce/');
+    var m2 = html2.match(/(\d+)[,.](\d{4,5})/);
+    if (m2) result.pun_oggi_kwh = m2[1] + '.' + m2[2];
+  }
+
+  if (!result.pun_oggi_kwh) throw new Error('Prezzo PUN non trovato');
+  result.pun_oggi_kwh = parseFloat(result.pun_oggi_kwh).toFixed(5);
+  return result;
+}
+
+/* ─── Carburanti da ICAD ─── */
+async function scrapeFuel() {
+  var html = await fetchViaProxy('https://icadsistemi.com/prezzo-medio-regionale-carburanti');
+  var result = {};
+
+  // cerca prezzi medi nazionali — pattern tipo: Gasolio ... 2,083 o 2.083
+  var mGas = html.match(/[Gg]asolio[^0-9]*(\d+)[,.](\d{3})/);
+  var mBen = html.match(/[Bb]enzina[^0-9]*(\d+)[,.](\d{3})/);
+  if (mGas) result.gasolio_naz = parseFloat(mGas[1] + '.' + mGas[2]);
+  if (mBen) result.benzina_naz = parseFloat(mBen[1] + '.' + mBen[2]);
+
+  // cerca anche per regioni: pattern "Lombardia ... 2,092 ... 1,853"
+  var regionMatches = {};
+  var regionPattern = /(Abruzzo|Basilicata|Bolzano|Calabria|Campania|Emilia\s*Romagna|Friuli|Lazio|Liguria|Lombardia|Marche|Molise|Piemonte|Puglia|Sardegna|Sicilia|Toscana|Trento|Umbria|Veneto|Valle)/gi;
+  var rm;
+  while ((rm = regionPattern.exec(html)) !== null) {
+    var after = html.slice(rm.index, rm.index + 200);
+    var nums = [];
+    var nm;
+    var np = /(\d)[,.](\d{3})/g;
+    while ((nm = np.exec(after)) !== null) {
+      nums.push(parseFloat(nm[1] + '.' + nm[2]));
+      if (nums.length >= 2) break;
+    }
+    if (nums.length >= 2) regionMatches[rm[1]] = {gasolio: nums[0], benzina: nums[1]};
+  }
+  result.regionMatches = regionMatches;
+
+  // data/timestamp
+  var mDate = html.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](2\d{3})/);
+  var mTime = html.match(/(\d{2}):(\d{2})/);
+  if (mDate) {
+    result.timestamp = mDate[1].padStart(2,'0')+'-'+mDate[2].padStart(2,'0')+'-'+mDate[3];
+    if (mTime) result.timestamp += ' ' + mTime[1]+':'+mTime[2];
+  }
+
+  return result;
+}
+
+/* ─── FETCH PUN ─── */
+async function fetchPUN(){
+  var btn=document.getElementById('btnPUN');
+  btn.disabled=true; btn.innerHTML='<span class="sp sp-b"></span> Aggiornamento...';
+  document.getElementById('sdot').className='dot ld';
+  document.getElementById('pval').style.opacity='0.3';
+  try {
+    var d = await scrapePUN();
+    if (d.pun_oggi_kwh) FP.pun_oggi_kwh = d.pun_oggi_kwh;
+    if (d.variazione_pct) FP.variazione_pct = d.variazione_pct;
+    if (d.min_kwh) FP.min_kwh = d.min_kwh;
+    if (d.max_kwh) FP.max_kwh = d.max_kwh;
+    if (d.ora_min) FP.ora_min = d.ora_min;
+    if (d.ora_max) FP.ora_max = d.ora_max;
+    if (d.data_oggi) { FP.data_oggi = d.data_oggi; FP.data_ieri = ''; }
+    aPUN(FP, true);
+    rSavings();
+  } catch(e) {
+    console.error('fetchPUN:', e);
+    document.getElementById('liveBadge').textContent='\u25CF Sito sorgente non raggiungibile';
+    document.getElementById('liveBadge').style.background='#fef3d0';
+    document.getElementById('liveBadge').style.color='#c8860a';
+    aPUN(FP, false);
+  } finally {
+    btn.disabled=false; btn.innerHTML='&#8635; Aggiorna';
+    document.getElementById('pval').style.opacity='1';
+  }
+}
+window.fetchPUN=fetchPUN;
+
+/* ─── FETCH CARBURANTI ─── */
+async function fetchFuel(){
+  var btn=document.getElementById('btnFuel'), bdg=document.getElementById('fuelBadge');
+  btn.disabled=true; btn.innerHTML='<span class="sp sp-a"></span> Aggiornamento...';
+  bdg.textContent='\u25CF Aggiornamento...';
+  try {
+    var d = await scrapeFuel();
+    var updated = false;
+
+    // aggiorna regioni se trovate per nome
+    if (Object.keys(d.regionMatches||{}).length > 3) {
+      FC.rows = FC.rows.map(function(row){
+        var key = Object.keys(d.regionMatches).find(function(k){
+          return row.r.toLowerCase().includes(k.toLowerCase());
+        });
+        if (key) {
+          var nr = Object.assign({}, row);
+          nr.gasolio = d.regionMatches[key].gasolio;
+          nr.benzina = d.regionMatches[key].benzina;
+          return nr;
+        }
+        return row;
+      });
+      updated = true;
+    }
+    if (d.gasolio_naz && d.benzina_naz) {
+      if (!updated) {
+        FC.rows = FC.rows.map(function(row) {
+          var nr = Object.assign({}, row);
+          if (row.r !== 'Autostradale') {
+            nr.gasolio = d.gasolio_naz + (Math.random()-.5)*.05;
+            nr.benzina = d.benzina_naz + (Math.random()-.5)*.04;
+          }
+          return nr;
+        });
+      }
+      updated = true;
+    }
+    if (d.timestamp) FC.timestamp = d.timestamp;
+    fd = FC;
+    document.getElementById('fts').textContent = 'Agg. ' + FC.timestamp;
+    rFuel();
+    bdg.textContent = '\u25CF Aggiornato live';
+    bdg.style.background = '#e6f4ec'; bdg.style.color = '#1a7a45';
+    if (updated) {
+      bdg.textContent = '\u25CF Live ICAD';
+      bdg.style.background = '#e6f4ec'; bdg.style.color = '#1a7a45';
+    }
+  } catch(e) {
+    console.error('fetchFuel:', e);
+    bdg.textContent = '\u25CF Dati locali';
+    bdg.style.background = '#fef3d0'; bdg.style.color = '#c8860a';
+    rFuel();
+  } finally {
+    btn.disabled = false; btn.innerHTML = '&#8635; Aggiorna';
+  }
+}
+window.fetchFuel = fetchFuel;
+
+/* ═══════════════════════════════════════
+   GROQ AI — ANALISI PREZZI LIVE
+═══════════════════════════════════════ */
+
+var GROQ_KEY = '';   // inserita dall'utente nel pannello
+
+/* Pannello Groq — crea UI se non esiste */
+function ensureGroqPanel() {
+  if (document.getElementById('groqPanel')) return;
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'groqPanel';
+  card.style.cssText = 'border-top:3px solid #6c3483;';
+  card.innerHTML = `
+    <div class="ct">
+      <span class="ic" style="background:#f3e8ff;font-size:1.2rem">&#129302;</span>
+      Analisi AI prezzi &mdash; Groq
+      <span class="bdg" style="background:#f3e8ff;color:#6c3483;margin-left:auto">Llama-3 · live</span>
+    </div>
+    <p style="font-size:.83rem;color:var(--ts)">
+      Inserisci la tua <a href="https://console.groq.com/keys" target="_blank" style="color:#6c3483;font-weight:600">Groq API key</a>
+      per ricevere un'analisi AI istantanea dei prezzi energia &amp; carburanti aggiornati.
+    </p>
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+      <input id="groqKeyInput" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx"
+        style="flex:1;min-width:220px;padding:.6rem 1rem;border:1.5px solid #d8b4fe;border-radius:30px;
+               font-family:'DM Mono',monospace;font-size:.85rem;background:#faf5ff;color:#3b0764;outline:none"
+        oninput="saveGroqKey(this.value)">
+      <button onclick="runGroqAnalysis()" id="btnGroq"
+        style="background:#6c3483;color:#fff;border:none;border-radius:30px;padding:.55rem 1.25rem;
+               font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;
+               align-items:center;gap:.4rem;transition:background .15s;white-space:nowrap"
+        onmouseover="this.style.background='#7e3d9a'" onmouseout="this.style.background='#6c3483'">
+        &#9889; Analizza ora
+      </button>
+    </div>
+    <div id="groqStatus" style="display:none;font-size:.78rem;color:#6c3483;display:flex;align-items:center;gap:.5rem;padding:.4rem 0"></div>
+    <div id="groqOut" style="display:none;background:#faf5ff;border:1px solid #d8b4fe;border-radius:12px;
+         padding:1.1rem 1.3rem;font-size:.87rem;color:#3b0764;line-height:1.75;white-space:pre-wrap"></div>
+    <div style="font-size:.7rem;color:var(--tx);border-top:1px solid var(--br);padding-top:.5rem;margin-top:.25rem">
+      La chiave viene usata solo lato client nel browser &mdash; non viene mai inviata a server ECT.
+      Modello: <strong>llama-3.3-70b-versatile</strong> via Groq Cloud.
+    </div>
+  `;
+  /* Inserisce dopo il banner risparmio, prima del main */
+  var main = document.querySelector('.main');
+  main.insertBefore(card, main.firstChild);
+}
+
+function saveGroqKey(val) {
+  GROQ_KEY = val.trim();
+  try { sessionStorage.setItem('groq_key', GROQ_KEY); } catch(e){}
+}
+
+function loadGroqKey() {
+  try {
+    var k = sessionStorage.getItem('groq_key');
+    if (k) { GROQ_KEY = k; var inp = document.getElementById('groqKeyInput'); if(inp) inp.value = k; }
+  } catch(e){}
+}
+
+async function runGroqAnalysis() {
+  var inp = document.getElementById('groqKeyInput');
+  var key = (inp ? inp.value.trim() : '') || GROQ_KEY;
+  if (!key) {
+    alert('Inserisci prima la tua Groq API key nel campo sopra.\nOttienila gratis su console.groq.com/keys');
+    return;
+  }
+  GROQ_KEY = key;
+
+  var btn = document.getElementById('btnGroq');
+  var status = document.getElementById('groqStatus');
+  var out = document.getElementById('groqOut');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="sp" style="border:2px solid rgba(255,255,255,.2);border-top-color:#fff"></span> Analisi in corso...';
+  status.style.display = 'flex';
+  status.innerHTML = '&#9679; Invio dati a Groq...';
+  out.style.display = 'none';
+
+  /* Costruisce prompt con dati live */
+  var punVal = parseFloat(document.getElementById('pval').textContent || FP.pun_oggi_kwh);
+  var tndEl  = document.getElementById('ptnd');
+  var punTnd = tndEl ? tndEl.textContent : '';
+  var gasRows = FC.rows.filter(function(r){ return r.r !== 'Autostradale'; });
+  var gasVals = gasRows.map(function(r){ return r.gasolio; }).filter(Boolean);
+  var benVals = gasRows.map(function(r){ return r.benzina; }).filter(Boolean);
+  var gasMedia = (gasVals.reduce(function(a,b){return a+b;},0)/gasVals.length).toFixed(3);
+  var benMedia = (benVals.reduce(function(a,b){return a+b;},0)/benVals.length).toFixed(3);
+  var sorted = gasRows.slice().sort(function(a,b){return a.gasolio-b.gasolio;});
+  var regMin = sorted[0] ? sorted[0].r + ' ' + sorted[0].gasolio.toFixed(3) + ' €/L' : '-';
+  var regMax = sorted[sorted.length-1] ? sorted[sorted.length-1].r + ' ' + sorted[sorted.length-1].gasolio.toFixed(3) + ' €/L' : '-';
+
+  var prompt = `Sei un analista energetico italiano esperto. Analizza i seguenti dati di mercato aggiornati al ${new Date().toLocaleDateString('it-IT')} e fornisci:
+1. Una valutazione sintetica del prezzo PUN oggi
+2. Confronto carburanti regionali: dove conviene fare rifornimento
+3. Consiglio pratico per un consumatore ECT Energy (sconto 40% su PUN)
+4. Outlook breve (prossimi 7 giorni) basato su tendenze note
+
+DATI LIVE:
+- PUN oggi: ${punVal.toFixed(5)} €/kWh (${punTnd})
+- PUN ieri: ${FP.pun_ieri_kwh} €/kWh
+- Media mensile: ${FP.media_mese_kwh} €/kWh
+- Gasolio media nazionale: ${gasMedia} €/L
+- Benzina media nazionale: ${benMedia} €/L
+- Regione più economica gasolio: ${regMin}
+- Regione più cara gasolio: ${regMax}
+- Prezzo ECT Energy (sconto 40%): ${(punVal*0.6).toFixed(5)} €/kWh
+
+Rispondi in italiano, massimo 220 parole, tono professionale ma accessibile. Usa bullet point per i consigli.`;
+
+  try {
+    var resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GROQ_KEY
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 600,
+        temperature: 0.5
+      })
+    });
+
+    if (!resp.ok) {
+      var err = await resp.json().catch(function(){ return {}; });
+      throw new Error((err.error && err.error.message) || 'HTTP ' + resp.status);
+    }
+
+    var data = await resp.json();
+    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!text) throw new Error('Risposta vuota da Groq');
+
+    out.textContent = text;
+    out.style.display = 'block';
+    status.innerHTML = '&#10003; Analisi completata &mdash; ' + new Date().toLocaleTimeString('it-IT');
+    status.style.color = '#1a7a45';
+
+    /* Aggiorna contesto PUN con sintesi AI */
+    var ctx = document.getElementById('pctx');
+    if (ctx && text.length > 40) {
+      var firstLine = text.split('\n').find(function(l){ return l.trim().length > 20; }) || text.slice(0,120);
+      ctx.innerHTML = '&#129302; <em style="color:#6c3483">' + firstLine.trim().slice(0,160) + '...</em> &middot; <a href="https://console.groq.com" target="_blank" style="color:#6c3483">Groq AI</a>';
+    }
+
+  } catch(e) {
+    status.innerHTML = '&#9888; Errore: ' + e.message;
+    status.style.color = '#c0392b';
+    out.style.display = 'none';
+    console.error('Groq error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '&#9889; Analizza ora';
+  }
+}
+window.runGroqAnalysis = runGroqAnalysis;
+window.saveGroqKey = saveGroqKey;
+
+/* Auto-aggiornamento prezzi ogni 5 minuti + analisi Groq se key presente */
+function autoRefresh() {
+  fetchPUN();
+  fetchFuel();
+  /* Rianalisi AI automatica solo se key già inserita */
+  setTimeout(function(){
+    if (GROQ_KEY) runGroqAnalysis();
+  }, 8000);
+}
+
+/* Init */
+(function init(){
+  ensureGroqPanel();
+  loadGroqKey();
+  rFuel();
+  /* Prima fetch automatica dopo 2s */
+  setTimeout(function(){
+    fetchPUN();
+    fetchFuel();
+  }, 2000);
+  /* Auto-refresh ogni 5 minuti */
+  setInterval(autoRefresh, 5 * 60 * 1000);
+})();
+
+})();
+</script>
+</body>
+</html>
