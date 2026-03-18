@@ -796,7 +796,7 @@ window.fetchFuel = fetchFuel;
    GROQ AI — ANALISI PREZZI LIVE
 ═══════════════════════════════════════ */
 
-var GROQ_KEY = '';   // inserita dall'utente nel pannello
+var GROQ_KEY = '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';
 
 /* Pannello Groq — crea UI se non esiste */
 function ensureGroqPanel() {
@@ -812,14 +812,9 @@ function ensureGroqPanel() {
       <span class="bdg" style="background:#f3e8ff;color:#6c3483;margin-left:auto">Llama-3 · live</span>
     </div>
     <p style="font-size:.83rem;color:var(--ts)">
-      Inserisci la tua <a href="https://console.groq.com/keys" target="_blank" style="color:#6c3483;font-weight:600">Groq API key</a>
-      per ricevere un'analisi AI istantanea dei prezzi energia &amp; carburanti aggiornati.
+      Analisi AI istantanea dei prezzi energia &amp; carburanti, aggiornata ai dati live di oggi.
     </p>
     <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
-      <input id="groqKeyInput" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx"
-        style="flex:1;min-width:220px;padding:.6rem 1rem;border:1.5px solid #d8b4fe;border-radius:30px;
-               font-family:'DM Mono',monospace;font-size:.85rem;background:#faf5ff;color:#3b0764;outline:none"
-        oninput="saveGroqKey(this.value)">
       <button onclick="runGroqAnalysis()" id="btnGroq"
         style="background:#6c3483;color:#fff;border:none;border-radius:30px;padding:.55rem 1.25rem;
                font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;
@@ -832,8 +827,7 @@ function ensureGroqPanel() {
     <div id="groqOut" style="display:none;background:#faf5ff;border:1px solid #d8b4fe;border-radius:12px;
          padding:1.1rem 1.3rem;font-size:.87rem;color:#3b0764;line-height:1.75;white-space:pre-wrap"></div>
     <div style="font-size:.7rem;color:var(--tx);border-top:1px solid var(--br);padding-top:.5rem;margin-top:.25rem">
-      La chiave viene usata solo lato client nel browser &mdash; non viene mai inviata a server ECT.
-      Modello: <strong>llama-3.3-70b-versatile</strong> via Groq Cloud.
+      Powered by <strong>Groq · llama-3.3-70b-versatile</strong> — analisi aggiornata ai prezzi live.
     </div>
   `;
   /* Inserisce dopo il banner risparmio, prima del main */
@@ -854,13 +848,11 @@ function loadGroqKey() {
 }
 
 async function runGroqAnalysis() {
-  var inp = document.getElementById('groqKeyInput');
-  var key = (inp ? inp.value.trim() : '') || GROQ_KEY;
-  if (!key) {
-    alert('Inserisci prima la tua Groq API key nel campo sopra.\nOttienila gratis su console.groq.com/keys');
+  var key = GROQ_KEY;
+  if (!key || key === 'INSERISCI_QUI_LA_TUA_GROQ_KEY') {
+    alert('API key Groq non configurata nel codice.');
     return;
   }
-  GROQ_KEY = key;
 
   var btn = document.getElementById('btnGroq');
   var status = document.getElementById('groqStatus');
