@@ -164,6 +164,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--sf);color:var(--tm);min-h
 }
 @media(max-width:440px){.sav-grid{grid-template-columns:1fr}}
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 
@@ -436,7 +437,8 @@ function aPUN(d,live){
     dot.className='dot';
     st.textContent='Dati 18/03/2026 \u00B7 Segugio.it / QuiFinanza';
   }
-  if(d.contesto){
+  /* aggiorna contesto solo se NON c'è già un'analisi Groq attiva */
+  if(d.contesto && !ctx.dataset.groq){
     ctx.innerHTML='\uD83D\uDCCA '+d.contesto+
       ' \u00B7 <a href="https://quifinanza.it/osservatorio-prezzi/prezzo-pun-luce-oggi/919954/" target="_blank" style="color:#0b4a7a">QuiFinanza</a>';
     ctx.style.display='block';
@@ -664,114 +666,122 @@ async function scrapePUN() {
   return result;
 }
 
-/* ─── Carburanti: ICAD + fallback MIMIT ─── */
+/* ─── Carburanti: multi-sorgente affidabile ─── */
 async function scrapeFuel() {
   var result = {};
 
-  /* ── Tentativo 1: ICAD Sistemi ── */
-  try {
-    var html = await fetchViaProxy('https://icadsistemi.com/prezzo-medio-regionale-carburanti');
-    var regionMatches = {};
-    var REGIONI = ['Abruzzo','Basilicata','Bolzano','Calabria','Campania',
-      'Emilia Romagna','Emilia-Romagna','Friuli','Lazio','Liguria','Lombardia',
-      'Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana',
-      'Trento','Umbria','Valle','Veneto'];
+  /* helper: fetch con timeout */
+  async function tryFetch(url, timeout) {
+    timeout = timeout || 7000;
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, timeout);
+    try {
+      var r = await fetch(url, {signal: ctrl.signal});
+      clearTimeout(t);
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      return await r.text();
+    } catch(e) { clearTimeout(t); throw e; }
+  }
 
-    /* Prova parsing tabella HTML <td> */
+  var REGIONI = ['Abruzzo','Basilicata','Bolzano','Calabria','Campania',
+    'Emilia Romagna','Emilia-Romagna','Friuli','Lazio','Liguria','Lombardia',
+    'Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana',
+    'Trento','Umbria','Valle','Veneto'];
+
+  function parseRegionsFromHTML(html) {
+    var regionMatches = {};
+    /* parsing celle <td> */
     var tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
     var cells = [], cm;
-    while ((cm = tdPattern.exec(html)) !== null) {
-      cells.push(cm[1].replace(/<[^>]+>/g,'').trim());
-    }
+    while ((cm = tdPattern.exec(html)) !== null)
+      cells.push(cm[1].replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim());
+
     for (var ci = 0; ci < cells.length - 3; ci++) {
-      var cell = cells[ci].replace(/&nbsp;/g,' ').trim();
-      var matched = REGIONI.find(function(r){ return cell.toLowerCase().includes(r.toLowerCase()); });
-      if (matched) {
+      var matched = REGIONI.find(function(r){ return cells[ci].toLowerCase().includes(r.toLowerCase()); });
+      if (matched && !regionMatches[matched]) {
         var nums = [];
-        for (var cj = ci+1; cj < Math.min(ci+6, cells.length); cj++) {
+        for (var cj = ci+1; cj < Math.min(ci+8, cells.length); cj++) {
           var n = parseFloat(cells[cj].replace(',','.'));
           if (!isNaN(n) && n > 1.0 && n < 4.0) nums.push(n);
           if (nums.length >= 4) break;
         }
-        if (nums.length >= 2) {
-          regionMatches[matched] = {gasolio: nums[0], benzina: nums[1],
-            gpl: nums[2]||null, metano: nums[3]||null};
-        }
+        if (nums.length >= 2)
+          regionMatches[matched] = {gasolio:nums[0], benzina:nums[1], gpl:nums[2]||null, metano:nums[3]||null};
       }
     }
-
-    /* Fallback: cerca testo libero vicino al nome regione */
+    /* fallback testo libero */
     if (Object.keys(regionMatches).length < 3) {
-      var regionPattern = new RegExp('('+REGIONI.join('|').replace(/ /g,'\\s*')+')','gi');
-      var rm2;
-      while ((rm2 = regionPattern.exec(html)) !== null) {
-        var key2 = rm2[1];
-        if (regionMatches[key2]) continue;
-        var after = html.slice(rm2.index, rm2.index + 300);
-        var numArr = [];
-        var np2 = /(\d)[,.](\d{3})/g, nm2;
-        while ((nm2 = np2.exec(after)) !== null) {
-          var v = parseFloat(nm2[1]+'.'+nm2[2]);
-          if (v > 1.0 && v < 4.0) numArr.push(v);
-          if (numArr.length >= 4) break;
+      var rp = new RegExp('('+REGIONI.join('|').replace(/ /g,'\\s*')+')','gi'), rm;
+      while ((rm = rp.exec(html)) !== null) {
+        if (regionMatches[rm[1]]) continue;
+        var after = html.slice(rm.index, rm.index+300);
+        var arr = [], np = /(\d)[,.](\d{3})/g, nm;
+        while ((nm = np.exec(after)) !== null) {
+          var v = parseFloat(nm[1]+'.'+nm[2]);
+          if (v > 1.0 && v < 4.0) arr.push(v);
+          if (arr.length >= 4) break;
         }
-        if (numArr.length >= 2)
-          regionMatches[key2] = {gasolio:numArr[0], benzina:numArr[1],
-            gpl:numArr[2]||null, metano:numArr[3]||null};
+        if (arr.length >= 2)
+          regionMatches[rm[1]] = {gasolio:arr[0], benzina:arr[1], gpl:arr[2]||null, metano:arr[3]||null};
       }
     }
-
-    if (Object.keys(regionMatches).length >= 3) {
-      result.regionMatches = regionMatches;
-      /* media nazionale da regioni */
-      var gVals = Object.values(regionMatches).map(function(r){return r.gasolio;}).filter(Boolean);
-      var bVals = Object.values(regionMatches).map(function(r){return r.benzina;}).filter(Boolean);
-      if (gVals.length) result.gasolio_naz = gVals.reduce(function(a,b){return a+b;},0)/gVals.length;
-      if (bVals.length) result.benzina_naz = bVals.reduce(function(a,b){return a+b;},0)/bVals.length;
-    }
-
-    var mDate = html.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](2\d{3})/);
-    var mTime = html.match(/(\d{2}):(\d{2})/);
-    if (mDate) {
-      result.timestamp = mDate[1].padStart(2,'0')+'-'+mDate[2].padStart(2,'0')+'-'+mDate[3];
-      if (mTime) result.timestamp += ' '+mTime[1]+':'+mTime[2];
-    }
-  } catch(e) { console.warn('ICAD fallito:', e); }
-
-  /* ── Tentativo 2: MIMIT (fonte ufficiale governo) ── */
-  if (!result.gasolio_naz) {
-    try {
-      var html2 = await fetchViaProxy('https://www.mimit.gov.it/it/energia/carburanti/prezzi-carburanti-in-italia');
-      var mG2 = html2.match(/[Gg]asolio[^0-9]*(\d)[,.](\d{3})/);
-      var mB2 = html2.match(/[Bb]enzina[^0-9]*(\d)[,.](\d{3})/);
-      var mP2 = html2.match(/GPL[^0-9]*0[,.](\d{3})/i);
-      if (mG2) result.gasolio_naz = parseFloat(mG2[1]+'.'+mG2[2]);
-      if (mB2) result.benzina_naz = parseFloat(mB2[1]+'.'+mB2[2]);
-      if (mP2) result.gpl_naz = parseFloat('0.'+mP2[1]);
-      if (!result.timestamp) result.timestamp = new Date().toLocaleDateString('it-IT').replace(/\//g,'-')+' (MIMIT)';
-    } catch(e2) { console.warn('MIMIT fallito:', e2); }
+    return regionMatches;
   }
 
-  /* ── Tentativo 3: Segugio prezzi carburanti ── */
-  if (!result.gasolio_naz) {
+  /* ── Tentativo 1: corsproxy.io → ICAD ── */
+  var sources = [
+    'https://corsproxy.io/?https://icadsistemi.com/prezzo-medio-regionale-carburanti',
+    'https://api.allorigins.win/raw?url='+encodeURIComponent('https://icadsistemi.com/prezzo-medio-regionale-carburanti'),
+    'https://api.codetabs.com/v1/proxy?quest=https://icadsistemi.com/prezzo-medio-regionale-carburanti'
+  ];
+
+  for (var si = 0; si < sources.length; si++) {
     try {
-      var html3 = await fetchViaProxy('https://carburanti.mise.gov.it/ospsg/index.jsp');
-      var mG3 = html3.match(/[Gg]asolio[^\d]*(\d)[,.](\d{3})/);
-      var mB3 = html3.match(/[Bb]enzina[^\d]*(\d)[,.](\d{3})/);
-      if (mG3) result.gasolio_naz = parseFloat(mG3[1]+'.'+mG3[2]);
-      if (mB3) result.benzina_naz = parseFloat(mB3[1]+'.'+mB3[2]);
-    } catch(e3) { console.warn('MISE fallito:', e3); }
+      var html = await tryFetch(sources[si], 8000);
+      var rm2 = parseRegionsFromHTML(html);
+      if (Object.keys(rm2).length >= 5) {
+        result.regionMatches = rm2;
+        var gv = Object.values(rm2).map(function(r){return r.gasolio;}).filter(Boolean);
+        var bv = Object.values(rm2).map(function(r){return r.benzina;}).filter(Boolean);
+        if (gv.length) result.gasolio_naz = gv.reduce(function(a,b){return a+b;},0)/gv.length;
+        if (bv.length) result.benzina_naz = bv.reduce(function(a,b){return a+b;},0)/bv.length;
+        var mDate = html.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](2\d{3})/);
+        var mTime = html.match(/(\d{2}):(\d{2})/);
+        if (mDate) {
+          result.timestamp = mDate[1].padStart(2,'0')+'-'+mDate[2].padStart(2,'0')+'-'+mDate[3];
+          if (mTime) result.timestamp += ' '+mTime[1]+':'+mTime[2];
+        }
+        break;
+      }
+    } catch(e) { console.warn('Fonte '+si+' fallita:', e.message); }
   }
 
-  /* Se ancora nessun dato, aggiorna solo timestamp */
-  if (!result.gasolio_naz && !result.regionMatches) {
+  /* ── Tentativo 2: MIMIT via proxy ── */
+  if (!result.gasolio_naz) {
+    var mimitSources = [
+      'https://corsproxy.io/?https://www.mimit.gov.it/it/energia/carburanti/prezzi-carburanti-in-italia',
+      'https://api.allorigins.win/raw?url='+encodeURIComponent('https://www.mimit.gov.it/it/energia/carburanti/prezzi-carburanti-in-italia')
+    ];
+    for (var mi = 0; mi < mimitSources.length; mi++) {
+      try {
+        var h2 = await tryFetch(mimitSources[mi], 8000);
+        var mG = h2.match(/[Gg]asolio[^0-9]{0,20}(\d)[,.](\d{3})/);
+        var mB = h2.match(/[Bb]enzina[^0-9]{0,20}(\d)[,.](\d{3})/);
+        if (mG && mB) {
+          result.gasolio_naz = parseFloat(mG[1]+'.'+mG[2]);
+          result.benzina_naz = parseFloat(mB[1]+'.'+mB[2]);
+          break;
+        }
+      } catch(e2) { console.warn('MIMIT '+mi+' fallito:', e2.message); }
+    }
+  }
+
+  if (!result.gasolio_naz && !result.regionMatches)
     throw new Error('Nessuna fonte carburanti raggiungibile');
-  }
 
-  if (!result.timestamp) {
+  if (!result.timestamp)
     result.timestamp = new Date().toLocaleDateString('it-IT').replace(/\//g,'-')+' '+
       new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  }
 
   return result;
 }
@@ -873,7 +883,8 @@ window.fetchFuel = fetchFuel;
    GROQ AI — ANALISI PREZZI LIVE
 ═══════════════════════════════════════ */
 
-var GROQ_KEY = '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';
+var GROQ_KEY = '';  // non serve più — la key è nel Cloudflare Worker
+var GROQ_PROXY = 'https://aged-star-3d72.dario-micheletti.workers.dev';
 
 /* Pannello Groq — crea UI se non esiste */
 function ensureGroqPanel() {
@@ -886,7 +897,7 @@ function ensureGroqPanel() {
     <div class="ct">
       <span class="ic" style="background:#f3e8ff;font-size:1.2rem">&#129302;</span>
       Analisi AI prezzi &mdash; Groq
-      <span class="bdg" style="background:#f3e8ff;color:#6c3483;margin-left:auto">Llama-3 · live</span>
+      <span class="bdg" style="background:#f3e8ff;color:#6c3483;margin-left:auto">Llama-3.3 · live</span>
     </div>
     <p style="font-size:.83rem;color:var(--ts)">
       Analisi AI istantanea dei prezzi energia &amp; carburanti, aggiornata ai dati live di oggi.
@@ -900,34 +911,24 @@ function ensureGroqPanel() {
         &#9889; Analizza ora
       </button>
     </div>
-    <div id="groqStatus" style="display:none;font-size:.78rem;color:#6c3483;display:flex;align-items:center;gap:.5rem;padding:.4rem 0"></div>
+    <div id="groqStatus" style="display:none;font-size:.78rem;color:#6c3483;align-items:center;gap:.5rem;padding:.4rem 0"></div>
     <div id="groqOut" style="display:none;background:#faf5ff;border:1px solid #d8b4fe;border-radius:12px;
          padding:1.1rem 1.3rem;font-size:.87rem;color:#3b0764;line-height:1.75;white-space:pre-wrap"></div>
     <div style="font-size:.7rem;color:var(--tx);border-top:1px solid var(--br);padding-top:.5rem;margin-top:.25rem">
       Powered by <strong>Groq · llama-3.3-70b-versatile</strong> — analisi aggiornata ai prezzi live.
     </div>
   `;
-  /* Inserisce dopo il banner risparmio, prima del main */
   var main = document.querySelector('.main');
   main.insertBefore(card, main.firstChild);
 }
 
-function saveGroqKey(val) {
-  GROQ_KEY = val.trim();
-  try { sessionStorage.setItem('groq_key', GROQ_KEY); } catch(e){}
-}
-
-function loadGroqKey() {
-  try {
-    var k = sessionStorage.getItem('groq_key');
-    if (k) { GROQ_KEY = k; var inp = document.getElementById('groqKeyInput'); if(inp) inp.value = k; }
-  } catch(e){}
-}
+function saveGroqKey(val) {}   /* mantenuto per compatibilità */
+function loadGroqKey() {}
 
 async function runGroqAnalysis() {
-  var key = GROQ_KEY;
-  if (!key || key === 'INSERISCI_QUI_LA_TUA_GROQ_KEY') {
-    alert('API key Groq non configurata nel codice.');
+  var key = GROQ_PROXY;
+  if (!key || key.includes('TUONOME')) {
+    alert('URL del Cloudflare Worker non configurato.\nModifica la riga GROQ_PROXY nel codice.');
     return;
   }
 
@@ -956,7 +957,7 @@ async function runGroqAnalysis() {
   var prompt = `Sei un analista energetico italiano esperto. Analizza i seguenti dati di mercato aggiornati al ${new Date().toLocaleDateString('it-IT')} e fornisci:
 1. Una valutazione sintetica del prezzo PUN oggi
 2. Confronto carburanti regionali: dove conviene fare rifornimento
-3. Per i consumatori ECT Energy con uno sconto del 40% sul PUN, il prezzo è di ${(punVal*0.6).toFixed(5)} €/kWh, compensato il prezzo componente energia. Ecco come funziona: il prezzo PUN viene ridotto del 40% grazie ai pannelli fotovoltaici che acquisti ed installiamo nelle nostre centrali. Il prezzo componente energia viene compensato per garantire un risparmio effettivo. Scopri come funziona.
+3. Consiglio pratico per un consumatore ECT Energy con uno sconto del 40% sul PUN, che ottieni con i nostri servizi, compensato il prezzo componente energia. Scopri come funziona.
 4. Outlook breve (prossimi 7 giorni) basato su tendenze note
 
 DATI LIVE:
@@ -973,21 +974,20 @@ Quando parli del consiglio per i consumatori ECT Energy, includi ESATTAMENTE que
 "Per i consumatori ECT Energy con uno sconto del 40% sul PUN, il prezzo è di ${(punVal*0.6).toFixed(5)} €/kWh, compensato il prezzo componente energia. Ecco come funziona:
 • Il prezzo PUN viene ridotto del 40% grazie ai pannelli fotovoltaici che acquisti ed installiamo nelle nostre centrali
 • Il prezzo componente energia viene compensato per garantire un risparmio effettivo
-Scopri come funziona."
+Scopri come funziona: clicca qui -> https://dariomicheletti-ctrl.github.io/ConfiguratoreGreenGeneration/"
+
+Dopo aver generato il testo, sostituisci il link con la dicitura cliccabile "👉 Clicca qui per scoprire come funziona" mantenendo l'URL nascosto nel testo visualizzato.
 
 Rispondi in italiano, massimo 280 parole, tono professionale ma accessibile. Usa bullet point per i consigli.`;
 
   try {
-    var resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    var resp = await fetch(GROQ_PROXY, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + GROQ_KEY
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 600,
+        max_tokens: 700,
         temperature: 0.5
       })
     });
@@ -1001,15 +1001,25 @@ Rispondi in italiano, massimo 280 parole, tono professionale ma accessibile. Usa
     var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error('Risposta vuota da Groq');
 
-    out.textContent = text;
+    /* Pulisce testo e sostituisce URL con link cliccabile */
+    var html = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/(👉\s*)?(clicca\s+qui[^<\n]*)?https?:\/\/dariomicheletti-ctrl\.github\.io\/ConfiguratoreGreenGeneration\/\S*/gi, '')
+      .replace(/Scopri come funziona[.:]*\s*/gi, 'Scopri come funziona: ')
+      .replace(/\n/g,'<br>');
+
+    /* Aggiunge sempre il link in fondo, una volta sola */
+    html += '<br><br><a href="https://dariomicheletti-ctrl.github.io/ConfiguratoreGreenGeneration/" target="_blank" style="color:#6c3483;font-weight:700;text-decoration:underline;font-size:.92rem">👉 Clicca qui per scoprire come funziona</a>';
+
+    out.innerHTML = html;
     out.style.display = 'block';
     status.innerHTML = '&#10003; Analisi completata &mdash; ' + new Date().toLocaleTimeString('it-IT');
     status.style.color = '#1a7a45';
 
-    /* Aggiorna contesto PUN con sintesi AI */
     var ctx = document.getElementById('pctx');
     if (ctx && text.length > 40) {
       var firstLine = text.split('\n').find(function(l){ return l.trim().length > 20; }) || text.slice(0,120);
+      ctx.dataset.groq = '1';
       ctx.innerHTML = '&#129302; <em style="color:#6c3483">' + firstLine.trim().slice(0,160) + '...</em> &middot; <a href="https://console.groq.com" target="_blank" style="color:#6c3483">Groq AI</a>';
     }
 
@@ -1030,16 +1040,200 @@ window.saveGroqKey = saveGroqKey;
 function autoRefresh() {
   fetchPUN();
   fetchFuel();
-  /* Rianalisi AI automatica solo se key già inserita */
   setTimeout(function(){
-    if (GROQ_KEY) runGroqAnalysis();
+    if (GROQ_PROXY && !GROQ_PROXY.includes('TUONOME')) runGroqAnalysis();
   }, 8000);
+}
+
+/* ═══════════════════════════════════════
+   PANNELLO ADMIN — AGGIORNAMENTO MANUALE
+═══════════════════════════════════════ */
+var ADMIN_PWD = 'ect2026';  // ← cambia questa password
+var adminUnlocked = false;
+
+function toggleAdmin() {
+  if (adminUnlocked) {
+    var p = document.getElementById('adminPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    return;
+  }
+  var pwd = prompt('Password admin:');
+  if (pwd === ADMIN_PWD) {
+    adminUnlocked = true;
+    document.getElementById('adminPanel').style.display = 'block';
+  } else if (pwd !== null) {
+    alert('Password errata.');
+  }
+}
+window.toggleAdmin = toggleAdmin;
+
+function applyAdminPUN() {
+  var pun   = parseFloat(document.getElementById('adm_pun').value);
+  var ieri  = parseFloat(document.getElementById('adm_ieri').value);
+  var media = parseFloat(document.getElementById('adm_media').value);
+  var varpct= document.getElementById('adm_var').value;
+  var minv  = parseFloat(document.getElementById('adm_min').value);
+  var maxv  = parseFloat(document.getElementById('adm_max').value);
+  var data  = document.getElementById('adm_data').value;
+  if (isNaN(pun) || pun <= 0) { alert('Inserisci un valore PUN valido'); return; }
+  FP.pun_oggi_kwh = pun.toFixed(5); PUN = pun;
+  if (!isNaN(ieri))  FP.pun_ieri_kwh   = ieri.toFixed(5);
+  if (!isNaN(media)) FP.media_mese_kwh = media.toFixed(5);
+  if (varpct)        FP.variazione_pct = varpct;
+  if (!isNaN(minv))  FP.min_kwh = minv.toFixed(5);
+  if (!isNaN(maxv))  FP.max_kwh = maxv.toFixed(5);
+  if (data)          FP.data_oggi = data;
+  aPUN(FP, true);
+  rSavings();
+  /* aggiorna timestamp footer */
+  var ts = new Date().toLocaleDateString('it-IT').replace(/\//g,'-')+' '+
+           new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  var fn = document.querySelector('.fn');
+  if (fn) fn.innerHTML = fn.innerHTML.replace(/Ultimo agg\.:.*?(?=<|$)/,
+    'Ultimo agg.: '+ts+' (admin)');
+  var stxt = document.getElementById('stxt');
+  if (stxt) stxt.textContent = 'Admin · ' + ts;
+  document.getElementById('admPUNStatus').textContent = '✓ PUN aggiornato alle ' + new Date().toLocaleTimeString('it-IT');
+  document.getElementById('admPUNStatus').style.color = '#1a7a45';
+}
+window.applyAdminPUN = applyAdminPUN;
+
+function applyAdminFuel() {
+  var gas = parseFloat(document.getElementById('adm_gas').value);
+  var ben = parseFloat(document.getElementById('adm_ben').value);
+  var gpl = parseFloat(document.getElementById('adm_gpl').value);
+  var met = parseFloat(document.getElementById('adm_met').value);
+  if (isNaN(gas) && isNaN(ben)) { alert('Inserisci almeno gasolio o benzina'); return; }
+  FC.rows = FC.rows.map(function(row){
+    var nr = Object.assign({}, row);
+    if (row.r !== 'Autostradale') {
+      if (!isNaN(gas)) nr.gasolio = Math.round((gas + (Math.random()-.5)*.03)*1000)/1000;
+      if (!isNaN(ben)) nr.benzina = Math.round((ben + (Math.random()-.5)*.03)*1000)/1000;
+      if (!isNaN(gpl)) nr.gpl     = Math.round((gpl + (Math.random()-.5)*.01)*1000)/1000;
+      if (!isNaN(met)) nr.metano  = Math.round((met + (Math.random()-.5)*.02)*1000)/1000;
+    }
+    return nr;
+  });
+  var ts = new Date().toLocaleDateString('it-IT').replace(/\//g,'-')+' '+
+           new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  FC.timestamp = ts;
+  fd = FC;
+  /* aggiorna tutti i punti dove compare il timestamp carburanti */
+  document.getElementById('fts').textContent = 'Agg. ' + ts;
+  var bdg = document.getElementById('fuelBadge');
+  if (bdg) { bdg.textContent = '\u25CF Aggiornato admin'; bdg.style.background='#e6f4ec'; bdg.style.color='#1a7a45'; }
+  var fn = document.querySelector('.fn');
+  if (fn) fn.innerHTML = fn.innerHTML.replace(/Ultimo agg\.:.*?(?=<|$)/,
+    'Ultimo agg.: '+ts+' (admin)');
+  rFuel();
+  rSavings();
+  document.getElementById('admFuelStatus').textContent = '✓ Carburanti aggiornati alle ' + new Date().toLocaleTimeString('it-IT');
+  document.getElementById('admFuelStatus').style.color = '#1a7a45';
+}
+window.applyAdminFuel = applyAdminFuel;
+
+function buildAdminPanel() {
+  if (document.getElementById('adminPanel')) return;
+  var wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div style="position:fixed;bottom:1.2rem;right:1.2rem;z-index:9999">
+      <button onclick="toggleAdmin()"
+        style="background:#0a2540;color:#fff;border:none;border-radius:50%;width:44px;height:44px;
+               font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(10,37,64,.3);
+               transition:background .15s" title="Admin"
+        onmouseover="this.style.background='#0b4a7a'" onmouseout="this.style.background='#0a2540'">
+        &#9881;
+      </button>
+    </div>
+    <div id="adminPanel" style="display:none;position:fixed;bottom:4.5rem;right:1.2rem;
+         width:340px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(10,37,64,.18);
+         border:1px solid #e1e8f0;z-index:9998;padding:1.25rem;max-height:80vh;overflow-y:auto">
+      <div style="font-weight:700;color:#0a2540;font-size:.95rem;margin-bottom:1rem;
+                  display:flex;align-items:center;justify-content:space-between">
+        &#9881; Pannello Admin
+        <button onclick="document.getElementById('adminPanel').style.display='none'"
+          style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#9aafc5">&#10005;</button>
+      </div>
+
+      <!-- PUN -->
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+                  color:#5a6a80;margin-bottom:.5rem">&#9889; Aggiorna PUN manualmente</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">PUN oggi (€/kWh)</label>
+          <input id="adm_pun" type="number" step="0.00001" placeholder="0.14987"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">PUN ieri (€/kWh)</label>
+          <input id="adm_ieri" type="number" step="0.00001" placeholder="0.14296"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Media mese (€/kWh)</label>
+          <input id="adm_media" type="number" step="0.00001" placeholder="0.14239"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Variazione % (es. +4.83)</label>
+          <input id="adm_var" type="text" placeholder="+4.83"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Min giornaliero</label>
+          <input id="adm_min" type="number" step="0.00001" placeholder="0.12103"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Max giornaliero</label>
+          <input id="adm_max" type="number" step="0.00001" placeholder="0.18420"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div style="grid-column:1/-1"><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Data (gg/mm/aaaa)</label>
+          <input id="adm_data" type="text" placeholder="19/03/2026"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+      </div>
+      <button onclick="applyAdminPUN()"
+        style="width:100%;background:#0a2540;color:#fff;border:none;border-radius:8px;
+               padding:.5rem;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:.3rem">
+        &#10003; Applica PUN
+      </button>
+      <div id="admPUNStatus" style="font-size:.72rem;min-height:1rem;margin-bottom:.75rem"></div>
+
+      <!-- CARBURANTI -->
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+                  color:#5a6a80;margin-bottom:.5rem;border-top:1px solid #e1e8f0;padding-top:.75rem">
+        &#9981; Aggiorna carburanti (medie naz. €/L)
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Gasolio</label>
+          <input id="adm_gas" type="number" step="0.001" placeholder="2.068"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Benzina</label>
+          <input id="adm_ben" type="number" step="0.001" placeholder="1.831"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">GPL</label>
+          <input id="adm_gpl" type="number" step="0.001" placeholder="0.687"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+        <div><label style="font-size:.7rem;color:#5a6a80;display:block;margin-bottom:.2rem">Metano</label>
+          <input id="adm_met" type="number" step="0.001" placeholder="1.491"
+            style="width:100%;padding:.4rem .6rem;border:1.5px solid #e1e8f0;border-radius:8px;
+                   font-family:'DM Mono',monospace;font-size:.85rem;background:#f5f7fa"></div>
+      </div>
+      <button onclick="applyAdminFuel()"
+        style="width:100%;background:#c8860a;color:#fff;border:none;border-radius:8px;
+               padding:.5rem;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:.3rem">
+        &#10003; Applica Carburanti
+      </button>
+      <div id="admFuelStatus" style="font-size:.72rem;min-height:1rem"></div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
 }
 
 /* Init */
 (function init(){
   ensureGroqPanel();
   loadGroqKey();
+  buildAdminPanel();
   rFuel();
   /* Prima fetch automatica dopo 2s */
   setTimeout(function(){
